@@ -9,33 +9,64 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
+        /* Background Gradient Animation */
         @keyframes bgMove {
             0% { background-position: 0% 50%; }
             100% { background-position: 100% 50%; }
         }
+
         .bg-animate {
             background: linear-gradient(135deg, #ff9ae8, #ffd6e0, #c4e0ff);
             background-size: 300% 300%;
             animation: bgMove 10s infinite alternate ease-in-out;
         }
 
+        /* Fade Animation */
         @keyframes fadeAnim {
             from { opacity: 0; }
             to { opacity: 1; }
         }
         .fade { animation: fadeAnim 1.5s ease-in-out; }
+
+        /* Floating Hearts */
+        .heart {
+            position: fixed;
+            bottom: -20px;
+            font-size: 20px;
+            color: #ff5ea2;
+            opacity: 0.7;
+            animation: floatUp 5s linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+            100% { transform: translateY(-800px) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 
-<body class="bg-animate text-center font-[Poppins] min-h-screen">
+<body class="bg-animate text-center font-[Poppins] min-h-screen overflow-hidden">
+
+    <!-- Floating Hearts Script -->
+    <script>
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.className = "heart";
+            heart.innerHTML = "💖";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+        setInterval(createHeart, 500);
+    </script>
 
     <!-- HEADER -->
-    <h1 class="text-5xl font-extrabold text-pink-600 mt-8 drop-shadow-2xl tracking-wide animate-pulse">
+    <h1 class="text-6xl font-extrabold text-pink-600 mt-8 drop-shadow-2xl tracking-wide animate-pulse">
         Happy Birthday 🎉
     </h1>
 
-    <!-- Card BG -->
-    <div class="max-w-xl w-full mx-auto mt-6 p-5 bg-white/30 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20">
+    <!-- Card Container -->
+    <div class="max-w-xl w-full mx-auto mt-6 p-5 bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20">
 
         <!-- CAROUSEL -->
         <div id="carousel"
@@ -45,27 +76,27 @@
 
         <div class="text-7xl mt-6 animate-bounce">🎂</div>
 
-        <p class="text-gray-800 mt-3 text-sm opacity-80">Tap anywhere to play music 🔊</p>
+        <p class="text-gray-800 mt-3 text-sm opacity-80">Enjoy the special moments 💖</p>
 
     </div>
 
     <!-- MUSIC -->
-    <audio id="music" autoplay loop muted>
+    <audio id="music" autoplay loop muted playsinline>
         <source src="song/ta.mp3" type="audio/mp3">
     </audio>
 
     <script>
+        /* IMAGE LOADING */
         const carousel = document.getElementById("carousel");
         const imageFolder = "TImages/";
-        const totalImages = 66;  // YOU HAVE IMAGES 01 to 66 ONLY
+        const totalImages = 66;  
         let imageSources = [];
 
         for (let i = 1; i <= totalImages; i++) {
-            let num = String(i).padStart(2, "0"); // 01.png, 02.png, ...
+            let num = String(i).padStart(2, "0");
             imageSources.push(`${imageFolder}${num}.png`);
         }
 
-        // Replace loading text
         carousel.innerHTML = "";
 
         imageSources.forEach((src, index) => {
@@ -91,16 +122,26 @@
 
         setInterval(nextSlide, 3000);
 
-        // MUSIC UNMUTE FIX
+        /* AUTO MUSIC (Mobile Safe Fade-in Trick) */
         const music = document.getElementById("music");
 
-        function unmuteMusic() {
-            music.muted = false;
-            music.play();
-        }
-
-        document.addEventListener("click", unmuteMusic, { once: true });
-        document.addEventListener("touchstart", unmuteMusic, { once: true });
+        window.addEventListener("load", () => {
+            music.muted = true;
+            music.play().then(() => {
+                setTimeout(() => {
+                    music.muted = false;
+                    let vol = 0;
+                    let fade = setInterval(() => {
+                        if (vol < 1) {
+                            vol += 0.05;
+                            music.volume = vol;
+                        } else {
+                            clearInterval(fade);
+                        }
+                    }, 200);
+                }, 500);
+            });
+        });
     </script>
 
 </body>
